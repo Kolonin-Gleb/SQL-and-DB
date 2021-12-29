@@ -1,0 +1,33 @@
+Первый запрос:
+CREATE OR REPLACE VIEW hw3_goods_all_data(
+   id,
+   name,
+   country_producer_name,
+   country_export_name,
+   price
+) AS SELECT
+   hw3_goods.id AS id,
+   hw3_goods.name AS name,
+   (SELECT name FROM hw3_countries WHERE hw3_goods.country_producer_id = hw3_countries.id),
+   (SELECT name FROM hw3_countries WHERE hw3_goods.country_export_id = hw3_countries.id),
+   hw3_goods.price AS price
+FROM hw3_goods;
+
+Второй запрос:
+SELECT univ_name, rating
+FROM university
+WHERE rating > (SELECT AVG(rating)+10 FROM university);
+
+Третий запрос:
+
+INSERT INTO hw3_goods (name, country_producer_id, country_export_id, price)
+VALUES
+(
+    "Новый товар",
+    (SELECT id FROM hw3_countries WHERE name = 'Китай'),
+    (SELECT id FROM hw3_countries WHERE name = 'Россия'),
+    100.55
+);
+
+
+

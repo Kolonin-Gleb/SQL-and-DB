@@ -1,0 +1,68 @@
+Соединение вывода таблиц через WHERE
+
+SELECT users.name, user_status.st
+FROM users, user_status
+WHERE users.id = user_status.user_id;
+
+То же самое, через JOIN:
+
+SELECT users.name, user_status.st
+FROM users
+INNER JOIN user_status ON users.id = user_status.user_id;
+
+Указывается только таблица users, т.е. таблица к которой произойдется присоединение
+
+# Не выводятся те, у кого NULL
+
+Соединение вывода таблиц через OUTER JOIN
+
+SELECT users.name, user_status.st
+FROM users
+LEFT JOIN user_status On 
+users.id = user_status.user_id;
+
+// Указывая LEFT или RIGHT JOIN не обязательно писать OUTER
+
+
+UNION + ORDER BY
+
+
+SELECT id, nn_company.company_name 
+FROM nn_company
+UNION
+SELECT id, nn_supplier.supplier_name
+FROM nn_supplier;
+
+
+SELECT id, nn_company.company_name , 'заказчик' AS company_type FROM nn_company
+UNION
+SELECT id, nn_supplier.supplier_name, 'поставщик'
+FROM nn_supplier;
+
+
+SELECT id, nn_company.company_name , 'заказчик' AS company_type, orders
+FROM nn_company
+UNION
+SELECT id, nn_supplier.supplier_name, 'поставщик' AS company_type, NULL
+FROM nn_supplier;
+
+
+FULL JOIN
+
+Можно получить используя LEFT, RIGHT и UNION
+
+В MySQL он не реализован
+
+
+
+
+
+
+
+
+
+
+
+
+Ответы на вопросы Итоговый проект по SQL:
+

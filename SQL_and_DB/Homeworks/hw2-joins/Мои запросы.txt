@@ -1,0 +1,116 @@
+*Примечание:
+В SQL существуют различные виды объединений, которые могут пригодится в разных ситуациях.
+У любого JOIN-a должно быть условие ON, по которому будет осуществляться объединение данных.
+
+Работаю с таблицами с hw2_workers_private и hw2_workers_public.
+Мне предстоит сделать 7 объединяющих запросов разного типа.
+
+Потом я хочу сохранить их в представления.
+
+	Основные JOIN-ы
+
+1) LEFT JOIN - Выводит все данные из основной таблицы.
+Данные, которым не нашлись пары в доп. таблице будут заполнены NULL.
+
+Все должности и работники их выполняющие
+SELECT
+    hw2_workers_private.FIO AS 'ФИО работника',
+    hw2_workers_public.position AS 'Должность'
+FROM
+    hw2_workers_public
+LEFT JOIN hw2_workers_private ON hw2_workers_private.id = hw2_workers_public.id;
+
+2) RIGHT JOIN Выводит все данные из доп. таблицы.
+Данные, которым не нашлись пары в основной таблице будут заполнены NUll.
+
+Все работники и должности ими занимаемые
+SELECT
+    hw2_workers_private.FIO AS 'ФИО работника',
+    hw2_workers_public.position AS 'Должность'
+FROM
+    hw2_workers_public
+RIGHT JOIN hw2_workers_private ON hw2_workers_private.id = hw2_workers_public.id;
+
+
+3) INNER JOIN - Выводит только данные, для которых нашлись пары согласно условию.
+
+Только работники имеющие должность
+SELECT
+    hw2_workers_private.FIO AS 'ФИО работника',
+    hw2_workers_public.position AS 'Должность'
+FROM
+    hw2_workers_public
+INNER JOIN hw2_workers_private ON hw2_workers_private.id = hw2_workers_public.id;
+
+4) FULL `OUTER` JOIN - Вывод всех данных. Данные, которым не нашлись пары в обоих таблицах заполняются NULL.
+*В MySQL его нет, но его можно эмулировать.
+
+Все работники и должности
+SELECT
+    hw2_workers_private.FIO,
+    hw2_workers_public.qualification
+FROM
+    hw2_workers_public
+LEFT OUTER JOIN hw2_workers_private ON hw2_workers_private.id = hw2_workers_public.id
+UNION
+
+SELECT
+    hw2_workers_private.FIO,
+    hw2_workers_public.qualification
+FROM
+    hw2_workers_public
+RIGHT OUTER JOIN hw2_workers_private ON hw2_workers_private.id = hw2_workers_public.id;
+
+	Модификации основных JOIN-ов (Инверсии)
+
+5) FULL NULL OUTER JOIN - Вывод всех данных, которым не нашлись пары в обоих таблицах заполняются NULL.
+
+Все работники без должности и все должности без работников
+SELECT
+    hw2_workers_private.FIO,
+    hw2_workers_public.qualification
+FROM
+    hw2_workers_public
+LEFT OUTER JOIN hw2_workers_private ON hw2_workers_private.id = hw2_workers_public.id
+WHERE hw2_workers_private.id IS NULL
+UNION
+SELECT
+    hw2_workers_private.FIO,
+    hw2_workers_public.qualification
+FROM
+    hw2_workers_public
+RIGHT OUTER JOIN hw2_workers_private ON hw2_workers_private.id = hw2_workers_public.id
+WHERE hw2_workers_public.id IS NULL;
+
+6) LEFT OUTER JOIN NULL - Вывод всех данных из основной таблицы за исключением тех, что совпадают с данными доп. таблицы.
+
+Вывод должностей, у которых нет работников по id
+SELECT
+    hw2_workers_private.FIO AS 'ФИО работника',
+    hw2_workers_public.position AS 'Должность'
+FROM
+    hw2_workers_public
+LEFT JOIN hw2_workers_private ON hw2_workers_private.id = hw2_workers_public.id
+WHERE hw2_workers_private.id IS NULL;
+
+7) RIGHT OUTER JOIN NULL - Вывод всех данных из доп. таблицы за исключением тех, что совпадают с данными в основной таблице.
+
+Вывод работников, у которых нет должностей по id
+SELECT
+    hw2_workers_private.FIO AS 'ФИО работника',
+    hw2_workers_public.position AS 'Должность'
+FROM
+    hw2_workers_public
+RIGHT JOIN hw2_workers_private ON hw2_workers_private.id = hw2_workers_public.id
+WHERE hw2_workers_public.id IS NULL;
+
+
+
+
+
+
+
+
+
+
+

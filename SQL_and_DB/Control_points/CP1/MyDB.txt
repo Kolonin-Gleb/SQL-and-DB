@@ -1,0 +1,98 @@
+CREATE TABLE `doctors` (
+  `id` int NOT NULL,
+  `F` varchar(30) NOT NULL,
+  `I` varchar(30) NOT NULL,
+  `O` varchar(30) NOT NULL,
+  `specialization` varchar(30) NOT NULL
+);
+
+INSERT INTO `doctors` (`id`, `F`, `I`, `O`, `specialization`) VALUES
+(1, 'Виноградов', 'Константин', 'Артёмович', 'Хирург'),
+(2, 'Сорокин', 'Иван', 'Русланович', 'Стоматолог'),
+(3, 'Федорова', 'Ева', 'Ивановна', 'Ортопед'),
+(4, 'Майорова', 'Анастасия', 'Елисеевна', 'Офтальмолог'),
+(5, 'Романов', 'Лев', 'Ильич', 'Кардиолог');
+
+CREATE TABLE `medical_centers` (
+  `id` int NOT NULL,
+  `adress` varchar(255) NOT NULL,
+  `district` varchar(255) NOT NULL
+);
+
+INSERT INTO `medical_centers` (`id`, `adress`, `district`) VALUES
+(1, 'Тверская-Ямская 1-я, 29, Москва', 'Тверская-Ямская'),
+(2, 'Красная Пресня, 16, Москва', 'Красная Пресня'),
+(3, 'Варшавское шоссе, 75 к1, Москва', 'Варшавское шоссе'),
+(4, 'Баррикадная, 19 ст3, Москва', 'Баррикадная'),
+(5, 'Шоссе Энтузиастов, 62, Москва', 'Шоссе Энтузиастов'),
+(6, 'Тверская-Ямская 2-я, 44, Москва', 'Тверская-Ямская'),
+(7, 'Тверская-Ямская 3-я, 79, Москва', 'Тверская-Ямская'),
+(8, 'Шоссе Энтузиастов, 33, Москва', 'Шоссе Энтузиастов');
+
+CREATE TABLE `patients` (
+  `id` int NOT NULL,
+  `F` varchar(30) NOT NULL,
+  `I` varchar(30) NOT NULL,
+  `O` varchar(30) NOT NULL,
+  `policy` varchar(30) NOT NULL
+);
+
+INSERT INTO `patients` (`id`, `F`, `I`, `O`, `policy`) VALUES
+(1, 'Гордеев', 'Тимур', 'Александрович', '1234 5678 9012 3456'),
+(2, 'Васильев', 'Егор', 'Михайлович', '4321 8765 0987 6543'),
+(3, 'Козлова', 'Анна', 'Максимовна', '1567 7890 9898 2424'),
+(4, 'Островская', 'Айша', 'Ильинична', '9999 8888 7777 6666'),
+(5, 'Андреева', 'Марьяна', 'Александровна', '5555 4444 3333 2222'),
+(6, 'Куликов', 'Лев', 'Львович', '3322 2233 4565 7879'),
+(7, 'Борисова', 'Надежда', 'Данииловна', '3772 3433 0065 7000'),
+(8, 'Наумова', 'Екатерина', 'Александровна', '6693 3699 4280 5514');
+
+CREATE TABLE `coupons` (
+  `id` int NOT NULL,
+  `time_of_appointment` datetime NOT NULL,
+  `patient_id` int NOT NULL,
+  `doctor_id` int NOT NULL,
+  `medical_center_id` int NOT NULL
+);
+
+INSERT INTO `coupons` (`id`, `time_of_appointment`, `patient_id`, `doctor_id`, `medical_center_id`) VALUES
+(1, '2021-10-11 15:30:00', 1, 1, 1),
+(2, '2021-10-11 16:00:00', 2, 2, 2),
+(3, '2021-10-11 16:30:00', 3, 3, 3),
+(4, '2021-10-11 10:20:00', 4, 2, 2),
+(5, '2021-10-11 13:20:00', 5, 2, 2),
+(6, '2021-10-11 16:35:58', 6, 5, 6),
+(7, '2021-10-11 19:36:15', 7, 4, 7),
+(8, '2021-10-11 16:35:58', 8, 1, 6);
+
+ALTER TABLE `doctors`
+  ADD PRIMARY KEY (`id`);
+
+ALTER TABLE `medical_centers`
+  ADD PRIMARY KEY (`id`);
+
+ALTER TABLE `patients`
+  ADD PRIMARY KEY (`id`);
+
+ALTER TABLE `coupons`
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `coupons_fk0` (`patient_id`),
+  ADD KEY `coupons_fk1` (`doctor_id`),
+  ADD KEY `couponss_fk2` (`medical_center_id`);
+
+ALTER TABLE `doctors`
+  MODIFY `id` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6;
+
+ALTER TABLE `medical_centers`
+  MODIFY `id` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=9;
+
+ALTER TABLE `patients`
+  MODIFY `id` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=9;
+
+ALTER TABLE `coupons`
+  MODIFY `id` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=9;
+
+ALTER TABLE `coupons`
+  ADD CONSTRAINT `coupons_fk0` FOREIGN KEY (`patient_id`) REFERENCES `patients` (`id`),
+  ADD CONSTRAINT `coupons_fk1` FOREIGN KEY (`doctor_id`) REFERENCES `doctors` (`id`),
+  ADD CONSTRAINT `coupons_fk2` FOREIGN KEY (`medical_center_id`) REFERENCES `medical_centers` (`id`);

@@ -1,0 +1,53 @@
+____________________________________________________
+
+CREATE OR REPLACE VIEW cp6_students_lecturers (id, postition, FI, university_name) AS 
+SELECT 
+    student.student_id,
+    'Студент' AS position,
+    CONCAT(student.surname, ' ', student.name) AS FI,
+    university.univ_name
+FROM student, university
+    WHERE student.univ_id = university.univ_id
+UNION
+SELECT
+	lecturer.lecturer_id,
+    'Педагог' AS postition,
+    ONCAT(lecturer.surname, ' ', lecturer.name) AS FI,
+    university.univ_name
+FROM lecturer, university
+	WHERE lecturer.lecturer_id = university.univ_id;
+
+_________ Фильтрация NULL исключение его___________________
+
+CREATE OR REPLACE VIEW cp6_students_lecturers (id, postition, FI, university_name) AS 
+SELECT 
+    student.student_id,
+    'Студент' AS position,
+    CONCAT(student.surname, ' ', student.name) AS FI,
+    university.univ_name
+FROM student, university
+    WHERE student.univ_id = university.univ_id AND
+    	student.univ_id IS NOT NULL AND
+		student.kurs IS NOT NULL
+UNION
+SELECT
+	lecturer.lecturer_id,
+    'Педагог' AS postition,
+    CONCAT(lecturer.surname, ' ', lecturer.name) AS FI,
+    university.univ_name
+FROM lecturer, university
+	WHERE lecturer.lecturer_id = university.univ_id AND
+        lecturer.univ_id IS NOT NULL;
+
+
+____________________________________________________________
+
+
+Создам представление исп. таблицу студентов, как основную.
+К ней присоединю данные  из другой таблицы.
+
+Какой тип Join-а мне нужен?
+
+Нужно соединение с Union, но КАКОЙ ТИП Join-a?
+
+
