@@ -1,0 +1,38 @@
+DELIMITER //
+
+CREATE PROCEDURE money_transfer (IN payer_id INT, IN receiver_id INT,  IN transfer_ammount FLOAT)
+COMMENT 'DECLARE cur CURSOR FOR SELECT money FROM 2p1s10.hw1_banking WHERE id = payer_id FOR UPDATE;'
+COMMENT 'OPEN cur;'
+COMMENT 'FETCH cur INTO payer_money;'
+COMMENT 'CLOSE cur_money_extractor;'
+
+COMMENT 'START TRANSACTION;'
+COMMENT 'CLOSE TRANSACTION;'
+
+COMMENT 'CALL money_transfer(2, 3, 900);'
+BEGIN
+    DECLARE payer_money FLOAT;
+    DECLARE bank_interest FLOAT DEFAULT 0;
+    DECLARE bank_id INT DEFAULT 1;
+
+    IF (transfer_ammount < 1000) THEN
+        SET bank_interest = transfer_ammount / 100 * 3;
+    ELSE
+        SET bank_interest = transfer_ammount / 100;
+    END IF;
+    
+    SET payer_money = 10000;
+
+    IF (payer_money < transfer_ammount + bank_interest) THEN
+        SELECT("Денег не хватит. Транзакция отменена!");
+    ELSE
+        UPDATE hw1_banking SET money = money - transfer_ammount WHERE id = payer_id;
+        UPDATE hw1_banking SET money = money + transfer_ammount WHERE id = receiver_id;
+
+        UPDATE hw1_banking SET money = money - bank_interest WHERE id = payer_id;
+        UPDATE hw1_banking SET money = money + bank_interest WHERE id = bank_id;
+    END IF;
+    
+END //
+
+DELIMITER ;
