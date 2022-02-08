@@ -1,9 +1,13 @@
 DELIMITER //
 
-CREATE PROCEDURE money_transfer (IN payer_id INT, IN receiver_id INT,  IN transfer_ammount FLOAT)
+CREATE PROCEDURE money_transfer2 (IN payer_id INT, IN receiver_id INT,  IN transfer_ammount FLOAT)
 
 COMMENT 'CALL money_transfer(2, 3, 900);'
 COMMENT 'CALL money_transfer(2, 3, 1000);'
+
+COMMENT 'START TRANSACTION;'
+COMMENT 'COMMIT;'
+
 BEGIN
     DECLARE bank_id INT DEFAULT 1;
     DECLARE bank_interest FLOAT DEFAULT 0;
@@ -11,6 +15,7 @@ BEGIN
 
     DECLARE cur_money_extractor CURSOR FOR SELECT money FROM 2p1s10.hw1_banking WHERE id = payer_id FOR UPDATE;
 
+    START TRANSACTION;
     OPEN cur_money_extractor;
     FETCH cur_money_extractor INTO payer_money;
     CLOSE cur_money_extractor;
@@ -31,6 +36,7 @@ BEGIN
         UPDATE hw1_banking SET money = money + bank_interest WHERE id = bank_id;
     END IF;
     
+    COMMIT;
 END //
 
 DELIMITER ;

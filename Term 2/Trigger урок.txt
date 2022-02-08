@@ -1,0 +1,31 @@
+Создать city_list в моей БД
+
+CREATE TABLE cl1_city_list (
+  id INT DEFAULT NULL,
+  name VARCHAR(100)
+);
+
+Создать триггер
+
+DELIMITER //
+
+CREATE TRIGGER upd_sum BEFORE INSERT ON cl1_city_list FOR EACH ROW
+BEGIN
+    DECLARE nid INT DEFAULT 0;
+    DECLARE cur_auto_inc CURSOR FOR SELECT MAX(id) cl1_city_list;
+
+    OPEN cur_auto_inc;
+    FETCH cur_auto_inc INTO nid;
+    CLOSE cur_auto_inc;
+
+    IF nid IS NULL THEN
+        SET nid = nid -1;
+    END IF;
+    SET NEW.id = nid + 1;
+END //
+
+DELIMITER ;
+
+Сделать тест автоинкремента
+
+
