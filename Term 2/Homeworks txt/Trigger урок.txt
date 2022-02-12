@@ -1,0 +1,30 @@
+Создать cl1_city_list в моей БД
+
+CREATE TABLE cl1_city_list (
+  id INT DEFAULT NULL,
+  name VARCHAR(100)
+);
+
+Создать триггер, реализующий автоинкремент города:
+
+DELIMITER //
+
+CREATE TRIGGER auto_i BEFORE INSERT ON cl1_city_list FOR EACH ROW
+BEGIN
+    DECLARE mid INT DEFAULT NULL;
+
+    DECLARE ai CURSOR FOR SELECT MAX(id) AS d FROM cl1_city_list;
+    OPEN ai;
+    FETCH ai INTO mid;
+    IF mid IS NULL THEN
+       SET mid = 0;
+    END IF;
+    SET NEW.id = mid + 1;
+    CLOSE ai;
+END //
+
+DELIMITER ;
+
+Сделать тест автоинкремента
+
+

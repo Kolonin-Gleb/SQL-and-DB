@@ -33,6 +33,6 @@ id, sum
 Мой ход работы над КТ:
 
 1) Создал Google Colab: https://colab.research.google.com/drive/15MP0wUU3-QXosHr2_y0SX-lCfm93tSOz?usp=sharing
-2) Создал пример Таблиц в DB Designer: 
+2) Создал пример Таблиц в DB Designer: (аккаунт для почты koloningleb@gmail.com)
 3) Реализовал Таблицы в PHP My Admin: 
 4) 
