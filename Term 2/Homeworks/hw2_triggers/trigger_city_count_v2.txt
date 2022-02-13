@@ -1,0 +1,56 @@
+Создать триггер, записывающий текущее кол. строк в таблице в поле другой таблицы
+
+МОИ ВОПРОСЫ:
+1) Как создать триггер, который будет срабатывать, как при удалении, так и при добавлении строки в таблицу?
+2) Как изменить данные в другой таблице, исп. триггер? Подумай над этим после того, как сдеаешь 1 с простым выводом результата.
+3) Мне вероятнее всего понадобится ещё 1 курсор для записи полученных данных в другую таблицу.
+
+ЗАДАННЫЕ ВОПРОСЫ:
+1) Как создать триггер, что срабатывает как после вставки, так и после удаления строки?
+Или такого функционала нет и нужно создавать 2 триггера?
+
+2) Можно ли вывести лок. переменную триггера используя SELECT? При попытке я получаю ошибку.
+1415 - Not allowed to return a result set from a trigger1415 - Not allowed to return a result set from a trigger
+
+ТЕКУЩИЕ ЗАДАЧИ:
+1) Написать SQL запрос, что обновит поле в другой таблице
+
+DELIMITER //
+
+CREATE TRIGGER city_count_inc
+AFTER INSERT
+ON hw2_cities
+FOR EACH ROW
+BEGIN
+    DECLARE cities_count INT DEFAULT NULL;
+    cities_count = SELECT COUNT(*) FROM hw2_cities;
+
+    UPDATE hw2_cities_count SET hw2_cities_count.cities_count = cities_count;
+END //
+
+DELIMITER ;
+
+DELIMITER //
+
+CREATE TRIGGER city_count_dec
+AFTER DELETE
+ON hw2_cities
+FOR EACH ROW
+BEGIN
+    DECLARE cities_count INT DEFAULT NULL;
+    cities_count = SELECT COUNT(*) FROM hw2_cities;
+
+    UPDATE hw2_cities_count SET hw2_cities_count.cities_count = cities_count;
+END //
+
+DELIMITER ;
+
+
+
+
+
+
+
+
+
+
