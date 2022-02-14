@@ -23,7 +23,7 @@ ON hw2_cities
 FOR EACH ROW
 BEGIN
     DECLARE cities_count INT DEFAULT NULL;
-    cities_count = SELECT COUNT(*) FROM hw2_cities;
+    cities_count = (SELECT COUNT(*) FROM hw2_cities);
 
     UPDATE hw2_cities_count SET hw2_cities_count.cities_count = cities_count;
 END //
@@ -38,7 +38,7 @@ ON hw2_cities
 FOR EACH ROW
 BEGIN
     DECLARE cities_count INT DEFAULT NULL;
-    cities_count = SELECT COUNT(*) FROM hw2_cities;
+    cities_count = (SELECT COUNT(*) FROM hw2_cities);
 
     UPDATE hw2_cities_count SET hw2_cities_count.cities_count = cities_count;
 END //
