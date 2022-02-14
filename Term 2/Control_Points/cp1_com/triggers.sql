@@ -49,6 +49,6 @@ INSERT INTO `com_call` (`id`, `client_id`, `client_phone`, `abonent_phone`, `dt`
 
 -- Ещё один тест, чтобы проверить работу транзакци
 INSERT INTO `com_call` (`client_id`, `client_phone`, `abonent_phone`, `dt`, `call_long`, `call_type`) VALUES
-(2, '+79222547895', '+79258877895', '2022-02-12 10:37:06', 1.2, 'out');
+(2, '+79222547895', '+79258877895', '2022-02-12 10:37:06', 10, 'out');
 
 
