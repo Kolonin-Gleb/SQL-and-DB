@@ -9,7 +9,6 @@ INSERT INTO `com_call` (`id`, `client_id`, `client_phone`, `abonent_phone`, `dt`
 (7, 2, '+74991278563', '+79165548947', '2022-02-12 17:40:21', 287.29, 'out');
 
 
-
 INSERT INTO `com_client` (`id`, `name`, `money`) VALUES
 (1, 'ООО \"Парус\"', 134.75),
 (2, 'ООО \"Будущее уже тут\"', 1.66);

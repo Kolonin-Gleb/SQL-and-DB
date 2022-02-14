@@ -4,6 +4,14 @@ CREATE TABLE `com_billing` (
   `cost_minute` float NOT NULL,
   `cost_call` float NOT NULL
 );
+
+ALTER TABLE `com_billing`
+  ADD PRIMARY KEY (`id`);
+
+ALTER TABLE `com_billing`
+  MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=8;
+COMMIT;
+
 --
 CREATE TABLE `com_call` (
   `id` int(10) UNSIGNED NOT NULL,
