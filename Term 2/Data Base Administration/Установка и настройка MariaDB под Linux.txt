@@ -1,0 +1,90 @@
+Команды, которые мы использовали на уроке:
+
+ 
+
+Посмотреть свободное место:
+в блоках:
+df
+в Мб:
+df -h
+
+ 
+
+Перед установкой обновить зависимости и обновить систему:
+
+sudo apt-get update
+
+sudo apt-get upgrade
+
+ 
+
+Установка клиента и сервера СУБД
+sudo apt-get install mariadb-client mariadb-server
+
+ 
+
+Основные настройки безопасности
+sudo mysql_secure_installation
+
+ 
+
+ОДИН РАЗ!!! Поставить в автозагрузку
+sudo systemctl enable mysql
+sudo systemctl enable mariadb - именно для сервера Azure
+
+ 
+
+Запустить MariaDB
+
+
+sudo systemctl start mysql
+sudo systemctl start mariadb - именно для сервера Azure
+
+ 
+
+Посмотреть статус
+sudo systemctl status mysql
+sudo systemctl status mariadb - именно для сервера Azure
+
+ 
+
+Остановить
+sudo systemctl stop mysql
+sudo systemctl stop mariadb - именно для сервера Azure
+
+ 
+
+Перезапустить
+sudo systemctl restart mysql
+sudo systemctl restart mariadb - именно для сервера Azure
+
+
+Запустить CLI:
+mysql -u root -p
+
+ALTER USER 'root'@'localhost' IDENTIFIED BY 'pass';
+
+ 
+
+Посмотреть временную зону
+sudo mysql –e "SELECT @@global.time_zone;"
+
+
+sudo apt install htop - инсталлировать
+htop - посмотреть ресурсы компьютера
+
+ 
+
+Убить процесс
+kill -1 - вежливо попросить
+kill -9 - самый жесткий способ убить процесс
+Пример: kill -9 1471
+
+
+Как заменить часовой пояс:
+cd /etc   переходим в директорию с настройками
+ls -la loc*  смотрим, на что ссылается файл localtime
+Если файл не ссылается на Europe/Moscow, то удаляем его
+sudo rm localtime удаляем файл
+И теперь создаем ссылку на файл:
+ln -s /usr/share/zoneinfo/Europe/Moscow /etc/localtime

@@ -1,0 +1,53 @@
+Создайте базы данных и пользователей
+
+1. Создайте две базы данных. 
+
+CREATE DATABASE db1;
+CREATE DATABASE db2;
+
+И в каждой базе данных создать минимум по две таблицы.
+
+CREATE TABLE `classwork_table1` (
+  `id` int(11) NOT NULL,
+  `name` varchar(100) NOT NULL
+);
+
+CREATE TABLE `classwork_table2` (
+  `id` int(11) NOT NULL,
+  `name` varchar(100) NOT NULL,
+  `phone` varchar(100) NOT NULL
+);
+
+-- Таблицы для 2 БД
+CREATE TABLE `classwork_table3` (
+  `id` int(11) NOT NULL,
+  `name` varchar(100) NOT NULL
+);
+
+CREATE TABLE `classwork_table4` (
+  `id` int(11) NOT NULL,
+  `name` varchar(100) NOT NULL,
+  `phone` varchar(100) NOT NULL
+);
+
+2. Создайте двух пользователей. Одного локального, 
+
+Один пользователь должен иметь доступ к обеим базам данных для выполнения всех операций,
+
+CREATE USER 'localUser'@'127.0.0.1' IDENTIFIED BY 'localUser';
+
+GRANT ALL PRIVILEGES ON db1.* TO 'localUser'@'127.0.0.1';
+GRANT ALL PRIVILEGES ON db2.* TO 'localUser'@'127.0.0.1';
+ 
+А второго с доступом с любого хоста.
+
+CREATE USER 'globalUser'@'%' IDENTIFIED BY 'globalUser';
+
+а второй -  должен иметь права на чтение данных, обновление и вставку для одной из таблиц.
+
+GRANT SELECT, UPDATE, INSERT ON db1.classwork_table1 TO 'globalUser'@'%';
+
+ДОП: ПРОСМОТР РОЗДАННЫХ ПРИВИЛЕГИЙ:
+SHOW GRANTS FOR 'localUser'@'127.0.0.1';
+SHOW GRANTS FOR 'globalUser'@'%';
+
