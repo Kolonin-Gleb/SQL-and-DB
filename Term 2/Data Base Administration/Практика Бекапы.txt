@@ -1,0 +1,36 @@
+# Мой бэкап данных таблицы fl_flowers_storage
+# Для последующей передачи бэкапа Игорю
+
+
+# 1) Через MobaXterm подключаюсь к серверу db-learning.ithub.ru (2p1s10)
+
+Вход в БД не нужен для создания бекапа.
+
+mysqldump -u 2p1s10 -p 2p1s10 fl_flowers_storage > fl_flowers_storage_backup.sql
+
+future_IT_money_victory_24
+
+Сжатие бекапа
+
+gzip fl_flowers_storage_backup.sql
+
+
+Скачиваю файл бекапа от Игоря.
+Загружаю его на свой сервер.
+
+Разархивирую файл командой
+
+gunzip -c dump.zip | mysql -u 2p1s10 -pfuture_IT_money_victory_24 2p1s10
+
+Выполняю файл для применения бекапа
+
+-- Тут не получилось, т.к. таблицы из бекапа уже существовали у меня.
+
+Получил файл от Саши Б
+
+Выполнил его командой
+
+mysql -u 2p1s10 -p --database=2p1s10 < db.sql
+
+future_IT_money_victory_24
+
