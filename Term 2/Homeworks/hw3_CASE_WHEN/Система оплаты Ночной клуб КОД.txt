@@ -1,0 +1,17 @@
+-- Установка интересующего нас времени
+SET @time = '00:00:00';
+-- Установка интересующего дня недели производится на прямую в условии WHERE
+
+SELECT
+	CASE
+    	WHEN @time >= beg_time1 AND @time <= end_time1 THEN 
+        	price1
+	WHEN @time >= beg_time2 AND @time <= end_time2 THEN
+		price2
+	WHEN @time >= beg_time3 AND @time <= end_time3 THEN
+		price3
+	END as 'Цена входа в ночной клуб в выбранное время'
+FROM hw3_pricing
+WHERE day_of_week = 'Friday';
+
+
