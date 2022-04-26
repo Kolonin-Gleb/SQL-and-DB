@@ -1,0 +1,14 @@
+Совет по организации связи между таблицами с Stackoverflow:
+
+
+create table a (
+    id number(5) primary key, 
+    name varchar2 (128))
+
+create table b (
+   id number(5) not null unique references a (id),
+   name varchar2 (128))
+
+-- Чтобы убедиться, что при использовании такого синтаксиса связь устанавливается провожу вставку данных
+
+Решил не делать

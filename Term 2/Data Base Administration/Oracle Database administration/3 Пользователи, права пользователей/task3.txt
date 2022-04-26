@@ -1,0 +1,32 @@
+-- Нужно выполнить подключение от лица созданного мною пользователя, а не схемы SYS
+-- Таблицы нужно создать в схеме пользователя.
+
+
+
+CREATE TABLE "hw4_abonents" (
+	"id" NUMBER PRIMARY KEY,
+	"tel" VARCHAR2(30) NOT NULL,
+	"name" VARCHAR2(100) NOT NULL,
+	"lastname" VARCHAR2(100) NOT NULL,
+	"surname" VARCHAR2(100) NOT NULL,
+	"operator_id" NUMBER NOT NULL);
+
+CREATE TABLE "hw4_new_operators" (
+	"id" NUMBER PRIMARY KEY,
+	"name" VARCHAR2(100) NOT NULL);
+
+
+SELECT * FROM "hw4_abonents";
+SELECT * FROM "hw4_operators";
+
+-- Провожу тест соединений
+
+-- Для вставки данных в таблицы Tablespaces должны быть онлайн?
+
+ALTER  TABLESPACE  TBS_PERM_01 ONLINE;
+
+INSERT INTO "hw4_operators" ("id", "name") VALUES (1, 'mts');
+--INSERT INTO "hw4_operators" (id, name) VALUES (2, 'beeline');
+
+INSERT INTO "hw4_abonents" ("id", "tel", "name", "lastname", "surname", "operator_id") VALUES (2, '+79164381712', 'Gleb', 'Kolonin', 'Semyonovich', 5);
+-- Тест проведён успешно!

@@ -1,0 +1,36 @@
+-- Этому пользователю не нужен свой TABLESPACE
+-- Обычно создают 1 TABLESPACE и раздают квоты на его исопльзование всем пользователям в соответствии с необходимостями
+-- Выполнить из SYS
+
+CREATE USER ithub_viewer IDENTIFIED BY "ithub_viewer"
+DEFAULT TABLESPACE tbs_perm_01 QUOTA 0M ON tbs_perm_01
+TEMPORARY TABLESPACE tbs_temp_01;
+
+-- Выдаю созданному пользователю все права -- Выполнить из SYS
+GRANT create session TO ithub_viewer;
+grant select on ITHUB."hw4_abonents" to ithub_viewer;
+GRANT select on ITHUB."hw4_operators" to ithub_viewer;
+
+-- Проверка выдачи прав и прочих настроек
+SELECT * FROM dba_users;
+
+
+
+--------------------------------------------------------
+
+-- Проверка прав созданного пользователя ithub_viewer_user
+-- Выполнять из ithub_viewer_user
+SELECT * FROM ITHUB."hw4_abonents";
+
+SELECT * FROM ITHUB."hw4_operators"
+
+-- INSERT INTO ITHUB."hw4_operators" ("id", "name") VALUES (2, 'beeline');
+-- Данную команду выполнить неполучится, т.к. пользователь не обладает соответствующими правами.
+
+
+
+
+
+
+
+

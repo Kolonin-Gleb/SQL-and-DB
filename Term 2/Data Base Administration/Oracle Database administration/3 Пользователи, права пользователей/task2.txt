@@ -1,0 +1,31 @@
+-- ВАЖНО: СХЕМУ/ПОЛЬЗОВАТЕЛЯ НУЖНО СОЗДАВАТЬ при подключении к схеме SYS.
+
+-- 1.При создании схем используйте собственные квоты
+-- Для постоянного пространства используйте квоту в 2 Мб, для временного - 1 Мб
+-- С версии 10 нет возможности установить квоту для временного табличного пространства
+
+CREATE USER ithub IDENTIFIED BY "ithub"
+DEFAULT TABLESPACE tbs_perm_01 QUOTA 2M ON tbs_perm_01;
+
+-- Забыл назначить временное пространство. Изменяю пользователя добавляя его.
+-- (При неуказанном пространстве используется то, что установлено по умолчанию)
+-- Измение пользователя из SYS
+
+ALTER USER ithub 
+DEFAULT TABLESPACE tbs_perm_01 QUOTA 2M ON tbs_perm_01
+TEMPORARY TABLESPACE tbs_temp_01;
+
+
+
+-- Выдаю созданному пользователю все права (Делаю это при подключении к SYS):
+GRANT create session TO ithub;
+GRANT create table TO ithub;
+GRANT create view TO ithub;
+GRANT create any trigger TO ithub;
+GRANT create any procedure TO ithub;
+GRANT create sequence TO ithub;
+GRANT create synonym TO ithub;
+
+
+
+SELECT * FROM dba_users;

@@ -1,0 +1,27 @@
+-- 1 ЗАДАНИЕ
+
+-- 1) Создайте постоянное табличное пространство размером 3 Мб с возможностью увеличения на 1 Мб до максимума в 100 Мб
+-- ВАЖНО: ТАБЛИЧНЫЕ ПРОСТРАНСТВА НУЖНО СОЗДАВАТЬ при подключении к схеме SYS.
+
+CREATE TABLESPACE tbs_perm_01
+DATAFILE 'tbs_perm_01.dat' SIZE 3M REUSE AUTOEXTEND ON NEXT 1M MAXSIZE 100M;
+
+
+-- 2) Создайте пространство под временные таблицы размером 5 Мб
+CREATE TEMPORARY TABLESPACE tbs_temp_01 
+TEMPFILE 'tbs_temp_01.dbf' SIZE 5M;
+
+
+-- 3) При создании пространств оставьте их оба в оперативном режиме
+-- Перевожу в автономный режим
+
+ALTER  TABLESPACE tbs_perm_01 OFFLINE;
+
+-- Для временных пространств нет ONLINE и OFFLINE
+-- Они всегда ONLINE
+
+
+SELECT * FROM dba_tablespaces;
+
+
+
