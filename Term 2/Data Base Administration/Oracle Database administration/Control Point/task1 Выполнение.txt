@@ -1,0 +1,32 @@
+1.Пользователь должен обладать всеми правами, чтобы подключаться к Oracle, создавать таблицы, вставлять данные, получать данные
+Мои действия:
+1) Запустил SQL Developer
+2) Подключился от sys
+
+-- Начинаю создание пользователя (Он будет размещаться на уже существующих табличных пространствах)
+
+CREATE USER control
+DEFAULT TABLESPACE tbs_perm_01 QUOTA 2M ON tbs_perm_01
+TEMPORARY TABLESPACE tbs_temp_01;
+
+-- Выдаю созданному пользователю все права (Делаю это при подключении к SYS):
+GRANT create session TO ithub;
+GRANT create table TO ithub;
+GRANT create view TO ithub;
+GRANT create any trigger TO ithub;
+GRANT create any procedure TO ithub;
+GRANT create sequence TO ithub;
+GRANT create synonym TO ithub;
+
+
+-- Для проверки, что пользователь создался
+SELECT * FROM dba_users;
+
+
+-- Я ЗАБЫЛ ДАТЬ ПАРОЛЬ ПОЛЬЗОВАТЕЛЮ.
+-- ДОБАВЛЯЮ ПАРОЛЬ ПОЛЗОВАТЕЛЮ
+
+ALTER USER control identified by control;
+ALTER USER control account unlock;
+
+-- 

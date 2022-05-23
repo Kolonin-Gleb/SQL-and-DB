@@ -1,0 +1,53 @@
+-- После создания пользователя создайте две таблицы:
+-- 1) Таблица регионов РФ, где будет название региона, номер региона
+
+create table rf_regions
+(
+ ID NUMBER PRIMARY KEY,
+ NAME VARCHAR2(60)
+);
+
+-- 2) Создайте таблицу городов. 
+-- Каждый город должен иметь столбцы, которые хранят принадлежность к региону, название, численность население
+-- Я решил сделать принадлежность к региону без явного Foreign Key
+
+create table cities
+(
+ ID NUMBER PRIMARY KEY,
+ ID_region NUMBER not null,
+ NAME VARCHAR2(80),
+ population NUMBER
+);
+
+-- Заполнение данными
+
+-- Регион 1 - Алтайский край
+INSERT INTO rf_regions (id, name) VALUES (1, 'Алтайский край');
+
+-- Города Алтайского края
+INSERT INTO cities (id, id_region, name, population) VALUES (1, 1, 'Алейск', 28434);
+INSERT INTO cities (id, id_region, name, population) VALUES (2, 1, 'Барнаул', 631124);
+INSERT INTO cities (id, id_region, name, population) VALUES (3, 1, 'Горняк', 12115);
+
+-- Регион 2 - Архангельская область
+INSERT INTO rf_regions (id, name) VALUES (2, 'Архангельская область');
+
+-- Города Архангельская области
+
+INSERT INTO cities (id, id_region, name, population) VALUES (4, 2, 'Архангельск', 344927);
+INSERT INTO cities (id, id_region, name, population) VALUES (5, 2, 'Каргополь', 10025);
+INSERT INTO cities (id, id_region, name, population) VALUES (6, 2, 'Мирный', 33321);
+
+
+-- Регион 3 - Воронежская область
+INSERT INTO rf_regions (id, name) VALUES (3, 'Воронежская область');
+
+-- Города Воронежской области
+INSERT INTO cities (id, id_region, name, population) VALUES (7, 3, 'Бобров', 20007);
+INSERT INTO cities (id, id_region, name, population) VALUES (8, 3, 'Воронеж', 1050602);
+INSERT INTO cities (id, id_region, name, population) VALUES (9, 3, 'Калач', 18221);
+
+-- Проверка вставленных данных
+
+SELECT * FROM rf_regions;
+SELECT * FROM cities;

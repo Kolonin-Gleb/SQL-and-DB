@@ -17,3 +17,5 @@ http://localhost:8080/apex/apex_admin
 admin
 Apex_24
 
+Пришлось обновить пароль при выполнении КТ.
+Новый пароль - Agent#0072411

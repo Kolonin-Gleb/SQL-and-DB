@@ -26,6 +26,5 @@ GRANT create any procedure TO ithub;
 GRANT create sequence TO ithub;
 GRANT create synonym TO ithub;
 
-
-
+-- Для проверки, что пользователь создался
 SELECT * FROM dba_users;
