@@ -1,0 +1,6 @@
+1.Таблица дожна иметь возможность только просмотра
+Необходимо отобразить таблицу всех городов. 
+
+Необходимо вывести все данные из таблицы городов + название региона из таблицы с регионами.
+
+Select cities.*, rf_regions.name as region_name from cities, rf_regions WHERE cities.id_region = rf_regions.id;

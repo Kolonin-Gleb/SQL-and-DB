@@ -1,0 +1,19 @@
+1.Выгрузите ваши таблицы и информацию о пользователе
+Приложите файл с логом.
+
+-- Здесь подразумевается создание бекапа.
+-- Я полагаю, что бекапы нужно делать от пользователя control.
+
+-- Даю ему права на это от пользователя SYS:
+
+-- Предоставление прав пользователю
+-- Даю права на работу с директории пользователю ithub
+GRANT read, write on DIRECTORY backups to control;
+
+-- В CMD выполняю команду:
+
+expdp control/control@xepdb1 SCHEMAS=control directory=backups dumpfile=DumpFull.dmp logfile=ExportFull.log
+
+
+
+

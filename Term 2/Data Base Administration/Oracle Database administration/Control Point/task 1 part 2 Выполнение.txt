@@ -51,3 +51,4 @@ INSERT INTO cities (id, id_region, name, population) VALUES (9, 3, 'Калач',
 
 SELECT * FROM rf_regions;
 SELECT * FROM cities;
+
