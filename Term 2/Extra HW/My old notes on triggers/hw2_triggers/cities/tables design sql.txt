@@ -1,0 +1,9 @@
+ CREATE TABLE `hw2_cities` (
+	`id` INT NOT NULL,
+	`name` varchar(100) NOT NULL
+);
+
+CREATE TABLE `hw2_cities_count` (
+	`cities_count` INT NOT NULL
+);
+
