@@ -1,0 +1,69 @@
+DROP TRIGGER IF EXISTS `new_sales`;
+DELIMITER //
+CREATE TRIGGER new_sales
+BEFORE UPDATE
+ON workers_sales
+FOR EACH ROW
+BEGIN
+    DECLARE new_sales INT DEFAULT 0;
+    DECLARE shop_plan INT DEFAULT 0;
+    DECLARE cur_shop_sales INT DEFAULT 0;
+    DECLARE active_shop_id INT DEFAULT 0;
+
+    DECLARE worker_pers_id INT DEFAULT 0;
+    DECLARE worker_shop_id INT DEFAULT 0;
+
+    DECLARE cur CURSOR FOR SELECT id, shop_id FROM workers;
+    DECLARE CONTINUE HANDLER FOR NOT FOUND SET active_shop_id = 0;
+
+    SET new_sales = NEW.cur_sales - OLD.cur_sales;
+    SET NEW.score = NEW.cur_sales * 200;
+    SET active_shop_id = (SELECT shop_id FROM workers WHERE id = NEW.worker_id);
+
+    SET cur_shop_sales = (SELECT cur_sales FROM shops_sales WHERE shop_id = active_shop_id);
+    SET new_sales = new_sales + cur_shop_sales;
+    UPDATE shops_sales SET cur_sales = new_sales WHERE shops_sales.shop_id = active_shop_id;
+
+    SET shop_plan = (SELECT shop_plan FROM shops_sales WHERE shop_id = active_shop_id);
+
+    IF new_sales >= shop_plan THEN
+        OPEN cur;
+        WHILE active_shop_id != 0 DO
+            FETCH cur INTO worker_pers_id, worker_shop_id;
+            IF worker_shop_id = active_shop_id THEN
+                UPDATE workers_sales SET income = fixed_salary + (fixed_salary * 0.2) WHERE worker_id = worker_pers_id;
+            END IF;
+        END WHILE;
+        CLOSE cur;
+    ELSE
+        IF NEW.cur_sales >= NEW.worker_plan THEN
+            SET NEW.income = NEW.fixed_salary + (NEW.score * 0.1);
+        END IF;
+    END IF;
+
+END //
+
+DELIMITER ;
+
+-- Работаю над расчётом income всех, сотрудников выполнивших план
+-- Нужно будет построчно в цикле проводить нужные проверки.
+-- Для этого буду использовать курсор.
+
+
+-- Команда для теста
+UPDATE `workers_sales` SET `cur_sales` = 100 WHERE `workers_sales`.`id` = 1
+
+-- Ожидаемый результат:
+У него увеличился income
+
+
+
+-- Выполнить код по обновлению Income всех сотрудников
+-- В цикле курсор будет построчно идти по всем сотрудникам (workers)
+-- Брать их shop_id и сравнивать его с active_shop_id
+-- Если они равны, то нужно выполнить перерасчёт income
+-- Иначе идти дальше
+-- По окончанию строк курсор должен установить значение active_shop_id = 0, чтобы цикл завершился
+
+-- Можно ли сделать это через цикл?
+
