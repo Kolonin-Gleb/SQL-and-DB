@@ -1,0 +1,22 @@
+DELIMITER //
+
+CREATE PROCEDURE get_price (IN pid INT) 
+BEGIN
+        SELECT name, pcount,
+              IF (pcount < 4, p2, p1)
+        FROM ithub.if_products WHERE pid = id;
+END //
+
+DELIMITER ;
+
+// Селект данной продедуры вернет данные явл. ответом.
+
+
+Создать процедуру
+
+Она должна будте принимать один параметр - ID продукции
+
+Используем табличку if_products из бд ithub
+
+Если у нас количество продукции меньше 4 то возвращается цена из колонки p2.
+Если больше или 4 - возвращаем цену из колонки p1

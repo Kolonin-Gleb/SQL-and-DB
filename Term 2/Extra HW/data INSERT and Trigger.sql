@@ -29,6 +29,15 @@ VALUES ('1', '1', '2022-05-30 16:00:00', '100', '0', '0', '30000', '30000'), ('2
 	Если `cur_sales` >= `worker_plan`:
 		Income = salary + score * 0.1
 
+-- 
+
+
+-- Повесить триггер на обновление конкретного поля нельзя.
+-- Если такое необходимо, то можно делать сравнения через .OLD .NEW
+
+-- Триггеры = хранимые процедуры, вызываемые при условиях.
+-- Если я хочу реализовать IF ELSE в триггере, я посмотрю, как это делать в процедурах.
+
 DELIMITER //
 
 CREATE TRIGGER new_sales
@@ -36,11 +45,30 @@ AFTER UPDATE
 ON workers_sales
 FOR EACH ROW
 BEGIN
-    INSERT INTO hw2_logging 
-    VALUES (0, NEW.id, OLD.title, NEW.title, OLD.info, NEW.info, NEW.dt, OLD.dt,  NOW());
+    INSERT INTO hw2_logging(
+    id,
+    news_id,
+    title_before_change,
+    title_after_change,
+    info_before_change,
+    info_after_change,
+    dt_edition,
+    dt_before_change,
+    dt_after_change
+    )
+    VALUES(
+    0,
+    NEW.id,
+    OLD.title,
+    NEW.title,
+    OLD.info,
+    NEW.info,
+    NEW.dt,
+    OLD.dt,
+    NOW()
+    );
 END //
 
 DELIMITER ;
-
 
 
