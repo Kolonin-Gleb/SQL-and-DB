@@ -1,0 +1,22 @@
+DROP TRIGGER IF EXISTS `worker_achieved`;
+DELIMITER //
+CREATE TRIGGER worker_achieved
+BEFORE UPDATE
+ON workers_sales
+FOR EACH ROW
+FOLLOWS new_sales
+BEGIN
+
+    IF NEW.cur_sales >= NEW.worker_plan THEN
+        SET NEW.income = NEW.fixed_salary + (NEW.score * 0.1);
+    END IF;
+
+END //
+
+DELIMITER ;
+
+
+-- Команда для теста
+UPDATE `workers_sales` SET `cur_sales` = 100 WHERE `workers_sales`.`id` = 1
+
+-- Всё сработало верно

@@ -1,0 +1,62 @@
+DROP TRIGGER IF EXISTS `new_sales`;
+DELIMITER //
+CREATE TRIGGER new_sales
+BEFORE UPDATE
+ON workers_sales
+FOR EACH ROW
+BEGIN
+    DECLARE new_sales INT DEFAULT 0;
+    DECLARE shop_plan INT DEFAULT 0;
+    DECLARE cur_shop_sales INT DEFAULT 0;
+    DECLARE active_shop_id INT DEFAULT 0;
+
+    DECLARE worker_pers_id INT DEFAULT 0;
+    DECLARE worker_shop_id INT DEFAULT 0;
+
+    DECLARE cur CURSOR FOR SELECT id, shop_id FROM workers;
+    DECLARE CONTINUE HANDLER FOR NOT FOUND SET active_shop_id = 0;
+
+    SET new_sales = NEW.cur_sales - OLD.cur_sales;
+    SET NEW.score = NEW.cur_sales * 200;
+    SET active_shop_id = (SELECT shop_id FROM workers WHERE id = NEW.worker_id);
+
+    SET cur_shop_sales = (SELECT cur_sales FROM shops_sales WHERE shop_id = active_shop_id);
+    SET new_sales = new_sales + cur_shop_sales;
+    UPDATE shops_sales SET cur_sales = new_sales WHERE shops_sales.shop_id = active_shop_id;
+
+    SET shop_plan = (SELECT shop_plan FROM shops_sales WHERE shop_id = active_shop_id);
+
+    IF new_sales >= shop_plan THEN
+        OPEN cur;
+        WHILE active_shop_id != 0 DO
+            FETCH cur INTO worker_pers_id, worker_shop_id;
+            IF worker_shop_id = active_shop_id THEN
+                UPDATE workers_sales SET income = fixed_salary + (fixed_salary * 0.2) WHERE worker_id = worker_pers_id;
+            END IF;
+        END WHILE;
+        CLOSE cur;
+    ELSE
+        IF NEW.cur_sales >= NEW.worker_plan THEN
+            SET NEW.income = NEW.fixed_salary + (NEW.score * 0.1);
+        END IF;
+    END IF;
+
+END //
+
+DELIMITER ;
+
+-- Я полагаю, что триггер не работает из-за того, что он стал слишком большим по функционалу.
+-- Как можно разделить реализацию триггера?
+
+-- Команда для теста
+UPDATE `workers_sales` SET `cur_sales` = 100 WHERE `workers_sales`.`id` = 1
+
+-- Ожидаемый результат:
+У него увеличился income
+
+-- Получаемый результат:
+Не даёт выполнить UPDATE из команды для теста. 
+Выходит ошибка
+#1442 - Can't update table 'workers_sales' in stored function/trigger because it is already used by statement which invoked this stored function/trigger.
+
+Я полагаю, что написал слишком сложный триггер и мне следует разделить его на несколько, но хочется понимать, где в нём ошибка.

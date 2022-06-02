@@ -1,0 +1,33 @@
+DROP TRIGGER IF EXISTS `shop_achieved`;
+DELIMITER //
+CREATE TRIGGER shop_achieved
+AFTER UPDATE
+ON shops_sales
+FOR EACH ROW
+BEGIN
+    DECLARE worker_pers_id INT DEFAULT 0;
+    DECLARE worker_shop_id INT DEFAULT 0;
+
+    DECLARE cur CURSOR FOR SELECT id, shop_id FROM workers;
+    DECLARE CONTINUE HANDLER FOR NOT FOUND SET worker_pers_id = -1;
+
+    IF NEW.cur_sales >= NEW.shop_plan THEN
+        OPEN cur;
+        WHILE worker_pers_id != -1 DO
+            FETCH cur INTO worker_pers_id, worker_shop_id;
+            IF worker_shop_id = NEW.shop_id THEN
+                UPDATE workers_sales SET income = fixed_salary + fixed_salary * 0.2 WHERE worker_id = worker_pers_id;
+            END IF;
+        END WHILE;
+        CLOSE cur;
+    END IF;
+
+END //
+
+DELIMITER ;
+
+-- Проблема в этом триггере!
+-- Невозможно обновить таблицу 'workers_sales'
+-- в хранимой функции/триггере, потому что она уже используется оператором, который вызвал эту хранимую функцию/триггер.
+
+Чтобы решить проблему я просто должен повесить триггер на другую таблицу!
