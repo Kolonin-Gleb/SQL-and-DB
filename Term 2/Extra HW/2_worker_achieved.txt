@@ -7,7 +7,7 @@ FOR EACH ROW
 FOLLOWS new_sales
 BEGIN
 
-    IF NEW.cur_sales >= NEW.worker_plan THEN
+    IF OLD.cur_sales < NEW.worker_plan AND NEW.cur_sales >= NEW.worker_plan THEN
         SET NEW.income = NEW.fixed_salary + (NEW.score * 0.1);
     END IF;
 
@@ -15,6 +15,8 @@ END //
 
 DELIMITER ;
 
+
+-- Если работник уже выполнил свой план продаж, то при дальнейших продажах его income не должен продолжать расти!
 
 -- Команда для теста
 UPDATE `workers_sales` SET `cur_sales` = 100 WHERE `workers_sales`.`id` = 1

@@ -11,7 +11,7 @@ BEGIN
     DECLARE cur CURSOR FOR SELECT id, shop_id FROM workers;
     DECLARE CONTINUE HANDLER FOR NOT FOUND SET worker_pers_id = -1;
 
-    IF NEW.cur_sales >= NEW.shop_plan THEN
+    IF OLD.cur_sales < NEW.shop_plan AND NEW.cur_sales >= NEW.shop_plan THEN
         OPEN cur;
         WHILE worker_pers_id != -1 DO
             FETCH cur INTO worker_pers_id, worker_shop_id;

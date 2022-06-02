@@ -1,0 +1,68 @@
+DROP TRIGGER IF EXISTS `new_sales`;
+DELIMITER //
+CREATE TRIGGER new_sales
+BEFORE UPDATE
+ON workers_sales
+FOR EACH ROW
+BEGIN
+    DECLARE new_sales INT DEFAULT 0;
+    DECLARE shop_plan INT DEFAULT 0;
+    DECLARE cur_shop_sales INT DEFAULT 0;
+    DECLARE active_shop_id INT DEFAULT 0;
+
+    DECLARE worker_pers_id INT DEFAULT 0;
+    DECLARE worker_shop_id INT DEFAULT 0;
+
+    DECLARE cur CURSOR FOR SELECT shop_id FROM workers;
+    DECLARE CONTINUE HANDLER FOR NOT FOUND SET active_shop_id = 0;
+
+    SET new_sales = NEW.cur_sales - OLD.cur_sales;
+    SET NEW.score = NEW.cur_sales * 200;
+
+    SET active_shop_id = (SELECT shop_id FROM workers WHERE id = NEW.worker_id);
+    SET cur_shop_sales = (SELECT cur_sales FROM shops_sales WHERE shop_id = active_shop_id);
+
+    SET new_sales = new_sales + cur_shop_sales;
+    SET shop_plan = (SELECT shop_plan FROM shops_sales WHERE shop_id = active_shop_id);
+
+    UPDATE shops_sales SET cur_sales = new_sales WHERE shops_sales.shop_id = active_shop_id;
+
+    IF cur_shop_sales < shop_plan AND new_sales >= shop_plan THEN
+        OPEN cur;
+        WHILE active_shop_id != 0 DO
+            FETCH cur INTO worker_shop_id;
+            IF worker_shop_id = active_shop_id THEN
+                SET NEW.income = NEW.fixed_salary + (NEW.score * 0.2);
+                SET NEW.id = 999;
+            END IF;
+        END WHILE;
+        CLOSE cur;
+    ELSE
+        IF OLD.cur_sales < NEW.worker_plan AND NEW.cur_sales >= NEW.worker_plan THEN
+            SET NEW.income = NEW.fixed_salary + (NEW.score * 0.1);
+            SET NEW.id = 888;
+        END IF;
+    END IF;
+
+END //
+
+DELIMITER ;
+
+-- ВАЖНО: Если магазин уже выполнил план продаж, то при следующих продажах income сотрудников не должен расти
+-- Поскольку этот триггер весит на таблице workers_sales нет возможности получить OLD и NEW cur_sales активного магазина.
+-- Для OLD.cur_sales магазина исп. переменная = cur_shop_sales
+-- Для NEW.cur_sales мгазина исп. переменная = new_sales
+-- Это экономит память
+
+
+-- Команда для теста
+UPDATE `workers_sales` SET `cur_sales` = 1000 WHERE `workers_sales`.`id` = 1
+
+-- Ожидаемый результат:
+Его income = fixed_salary * 0.2
+
+-- Получаемый результат:
+Обновление не происходит.
+
+
+-- Не забудь также проверить, чтобы income обновлялся у всех сотрудников этого магазина.
