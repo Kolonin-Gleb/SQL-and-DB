@@ -1,0 +1,74 @@
+DROP TRIGGER IF EXISTS `new_sales`;
+DELIMITER //
+CREATE TRIGGER new_sales
+BEFORE UPDATE
+ON workers_sales
+FOR EACH ROW
+BEGIN
+    DECLARE new_sales INT DEFAULT 0;
+    DECLARE shop_plan INT DEFAULT 0;
+    DECLARE old_shop_sales INT DEFAULT 0;
+    DECLARE new_shop_sales INT DEFAULT 0;
+    DECLARE active_shop_id INT DEFAULT 0;
+    DECLARE active_worker_id INT DEFAULT 0;
+    DECLARE cursor_stop INT DEFAULT 0;
+
+    DECLARE worker_pers_id INT DEFAULT 0;
+    DECLARE worker_shop_id INT DEFAULT 0;
+
+    DECLARE cur CURSOR FOR SELECT shop_id FROM workers;
+    DECLARE CONTINUE HANDLER FOR NOT FOUND SET cursor_stop = 1;
+
+    SET new_sales = NEW.cur_sales - OLD.cur_sales;
+    SET NEW.score = NEW.cur_sales * 200;
+    SET @global_worker_id = NEW.worker_id;
+
+    SET active_worker_id = NEW.worker_id;
+
+    SET active_shop_id = (SELECT shop_id FROM workers WHERE id = 1);
+
+    SET @global_active_shop_id = active_shop_id;
+
+    SET old_shop_sales = (SELECT cur_sales FROM shops_sales WHERE shop_id = 1);
+
+    SET new_sales = new_sales + old_shop_sales;
+    UPDATE shops_sales SET cur_sales = new_sales WHERE shop_id = 1;
+
+    SET shop_plan = (SELECT shop_plan FROM shops_sales WHERE shop_id = 1);
+
+    SET @global_new_sales = new_sales;
+    SET @global_shop_plan = shop_plan;
+
+    IF new_sales >= shop_plan THEN
+        OPEN cur;
+        WHILE cursor_stop != 1 DO
+            FETCH cur INTO worker_shop_id;
+            IF worker_shop_id = active_shop_id AND NEW.cur_sales >= NEW.worker_plan THEN
+                SET NEW.income = NEW.fixed_salary + (NEW.score * 1.2); -- НЕИЗЛЕЧИМАЯ ОШИБКА!
+            END IF;
+        END WHILE;
+        CLOSE cur;
+    END IF;
+
+    IF NEW.cur_sales >= NEW.worker_plan THEN
+        SET NEW.income = NEW.fixed_salary + (NEW.score * 1.1);
+    ELSE
+        SET NEW.income = NEW.fixed_salary + NEW.score;
+    END IF;
+
+END //
+
+DELIMITER ;
+
+-- Использую глобальные переменные для отладки
+
+UPDATE `workers_sales` SET `cur_sales` = 1000 WHERE `workers_sales`.`id` = 1;
+SELECT @global_new_sales, @global_shop_plan, @global_active_shop_id, @global_worker_id;
+
+
+-- Проблема: @global_shop_plan = 0, хотя должен быть = 1
+
+
+        WHILE active_shop_id != 0 DO
+            FETCH cur INTO worker_shop_id;
+            IF worker_shop_id = active_shop_id THEN -- Добавить условие проверки на то, что этот работник уже выполнил свой план продаж

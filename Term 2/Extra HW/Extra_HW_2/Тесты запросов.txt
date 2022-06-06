@@ -1,0 +1,19 @@
+UPDATE
+    workers_sales
+SET
+    score = score + 1 * 200
+WHERE
+    workers_sales.worker_id = 1 AND YEAR(workers_sales.dt) = YEAR('2022-05-30 16:00:00') AND MONTH(workers_sales.dt) = MONTH('2022-05-30 16:00:00');
+
+
+-- Тест триггера
+
+INSERT INTO `sales` (`id`, `worker_id`, `dt`, `new_sales`) VALUES ('1', '1', '2022-05-30 16:00:00', '1')
+SELECT @g_worker_plan;
+
+
+-- Запись, что я вставляю имеет тот же год, месяц день и час, что и та, что хранится в БД.
+-- Должно работать!
+
+SELECT worker_plan FROM workers_sales WHERE workers_sales.id = 1 AND YEAR('2022-05-30 16:00:00') = YEAR('2022-05-30 16:00:00') AND MONTH('2022-05-30 16:00:00') = MONTH('2022-05-30 16:00:00');
+

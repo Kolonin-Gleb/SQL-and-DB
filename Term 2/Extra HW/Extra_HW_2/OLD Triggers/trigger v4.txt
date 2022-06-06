@@ -1,0 +1,71 @@
+DROP TRIGGER IF EXISTS `new_sales`;
+DELIMITER //
+CREATE TRIGGER new_sales
+AFTER INSERT
+ON sales
+FOR EACH ROW
+BEGIN
+    DECLARE cur_worker_id INT DEFAULT 0;
+    DECLARE worker_plan1 INT DEFAULT 0;
+    DECLARE worker_sales INT DEFAULT 0;
+    DECLARE cur_shop_id INT DEFAULT 0;
+    DECLARE active_shop_id INT DEFAULT 0;
+    DECLARE shop_plan INT DEFAULT 0;
+    DECLARE shop_sales INT DEFAULT 0;
+
+    DECLARE cursor_stop INT DEFAULT 0;
+    DECLARE cur CURSOR FOR SELECT id, cur_sales, worker_plan FROM workers_sales;
+    DECLARE CONTINUE HANDLER FOR NOT FOUND SET cursor_stop = 1;
+
+    SET cur_worker_id = NEW.worker_id;
+    UPDATE workers_sales SET score = score + NEW.new_sales * 200 WHERE workers_sales.id = cur_worker_id AND YEAR(dt) = YEAR(NEW.dt) AND MONTH(dt) = MONTH(NEW.dt);
+    UPDATE workers_sales SET cur_sales = cur_sales + NEW.new_sales WHERE workers_sales.id = cur_worker_id AND YEAR(dt) = YEAR(NEW.dt) AND MONTH(dt) = MONTH(NEW.dt);
+    SET worker_sales = (SELECT cur_sales FROM workers_sales WHERE workers_sales.id = cur_worker_id AND YEAR(dt) = YEAR(NEW.dt) AND MONTH(dt) = MONTH(NEW.dt));
+    SET worker_plan1 = (SELECT worker_plan FROM workers_sales WHERE workers_sales.id = cur_worker_id AND YEAR(dt) = YEAR(NEW.dt) AND MONTH(dt) = MONTH(NEW.dt));
+    SET @g_worker_plan = worker_plan1;
+
+    SET cur_shop_id = (SELECT shop_id FROM workers WHERE id = cur_worker_id);
+    UPDATE shops_sales SET cur_sales = cur_sales + NEW.new_sales WHERE shop_id = cur_shop_id AND YEAR(dt) = YEAR(NEW.dt) AND MONTH(dt) = MONTH(NEW.dt);
+    SET shop_sales = (SELECT cur_sales FROM shops_sales WHERE shop_id = cur_shop_id AND YEAR(dt) = YEAR(NEW.dt) AND MONTH(dt) = MONTH(NEW.dt));
+    SET shop_plan = (SELECT shop_plan FROM shops_sales WHERE shop_id = cur_shop_id AND YEAR(dt) = YEAR(NEW.dt) AND MONTH(dt) = MONTH(NEW.dt));
+
+    SET active_shop_id = cur_shop_id;
+    IF shop_sales >= shop_plan THEN
+        OPEN cur;
+        WHILE cursor_stop != 1 DO
+            FETCH cur INTO cur_worker_id, worker_sales, worker_plan1;
+            SET cur_shop_id = (SELECT shop_id FROM workers WHERE id = cur_worker_id);
+            
+            IF cur_shop_id = active_shop_id AND worker_sales >= worker_plan1 THEN
+                UPDATE workers_sales SET income = fixed_salary + (score * 1.2) WHERE id = cur_worker_id AND YEAR(dt) = YEAR(NEW.dt) AND MONTH(dt) = MONTH(NEW.dt);
+            END IF;
+        END WHILE;
+        CLOSE cur;
+    END IF;
+
+    IF worker_sales >= worker_plan1 THEN
+        UPDATE workers_sales SET income = fixed_salary + (score * 1.1) WHERE id = cur_worker_id AND YEAR(dt) = YEAR(NEW.dt) AND MONTH(dt) = MONTH(NEW.dt);
+    ELSE
+        UPDATE workers_sales SET income = fixed_salary + score WHERE id = cur_worker_id AND YEAR(dt) = YEAR(NEW.dt) AND MONTH(dt) = MONTH(NEW.dt);
+    END IF;
+
+END //
+
+DELIMITER ;
+
+-- Команда для теста:
+INSERT INTO `sales` (`id`, `worker_id`, `dt`, `new_sales`) VALUES ('1', '1', '2022-05-30 16:00:00', '1');
+SELECT @g_worker_plan;
+
+-- Проблемы при тесте
+-- 1) Не увеличивается cur_sales у работника, что совершает продажу
+
+
+-- ОПТИМИЗАЦИЯ
+-- Зачем цикл идёт по всем работникам магазина, что уже выполнял свой план ранее?
+-- Нужно оптимизировать и сделать так, чтобы расчёт в этом случае проводился только для того, кто сделал продажу.
+
+
+
+
+

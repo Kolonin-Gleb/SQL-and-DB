@@ -1,0 +1,62 @@
+DROP TRIGGER IF EXISTS `new_sales`;
+DELIMITER //
+CREATE TRIGGER new_sales
+AFTER INSERT
+ON workers_sales
+FOR EACH ROW
+BEGIN
+    DECLARE cur_worker_id INT DEFAULT 0;
+    DECLARE worker_plan INT DEFAULT 0;
+    DECLARE worker_sales INT DEFAULT 0;
+    DECLARE cur_shop_id INT DEFAULT 0;
+    DECLARE shop_plan INT DEFAULT 0;
+    DECLARE shop_sales INT DEFAULT 0;
+
+
+    DECLARE cur CURSOR FOR SELECT id, cur_sales, worker_plan FROM workers_sales;
+    DECLARE cursor_stop INT DEFAULT 0;
+    DECLARE CONTINUE HANDLER FOR NOT FOUND SET cursor_stop = 1;
+
+    UPDATE workers_sales SET score = score + NEW.new_sales * 200 WHERE workers_sales.id = cur_worker_id AND YEAR(dt) = YEAR(NEW.dt) AND MONTH(dt) = MONTH(NEW.dt);
+    SET worker_sales = (SELECT cur_sales FROM workers_sales WHERE workers_sales.id = cur_worker_id AND YEAR(dt) = YEAR(NEW.dt) AND MONTH(dt) = MONTH(NEW.dt))
+    SET worker_plan = (SELECT worker_plan FROM workers_sales WHERE workers_sales.id = cur_worker_id AND YEAR(dt) = YEAR(NEW.dt) AND MONTH(dt) = MONTH(NEW.dt))
+
+    SET cur_shop_id = (SELECT shop_id FROM workers WHERE id = cur_worker_id);
+    UPDATE shops_sales SET cur_sales = cur_sales + NEW.new_sales WHERE shop_id = active_shop_id AND YEAR(dt) = YEAR(NEW.dt) AND MONTH(dt) = MONTH(NEW.dt);
+    SET shop_sales = (SELECT cur_sales FROM shops_sales WHERE shop_id = active_shop_id AND YEAR(dt) = YEAR(NEW.dt) AND MONTH(dt) = MONTH(NEW.dt));
+    SET shop_plan = (SELECT shop_plan FROM shops_sales WHERE shop_id = active_shop_id AND YEAR(dt) = YEAR(NEW.dt) AND MONTH(dt) = MONTH(NEW.dt));
+
+    IF shop_sales >= shop_plan THEN
+        OPEN cur;
+        WHILE cursor_stop != 1 DO
+            FETCH cur INTO cur_worker_id,  ;
+            IF cur_shop_id = active_shop_id AND worker_sales >= worker_plan THEN
+                SET NEW.income = NEW.fixed_salary + (NEW.score * 1.2); -- НЕИЗЛЕЧИМАЯ ОШИБКА!
+            END IF;
+        END WHILE;
+        CLOSE cur;
+    END IF;
+
+    IF worker_sales >= worker_plan THEN
+        SET income = fixed_salary + (score * 1.1);
+    ELSE
+        SET income = fixed_salary + score;
+    END IF;
+
+END //
+
+DELIMITER ;
+
+-- Теперь КУРСОРУ идёт по workers_sales
+-- Берёт id для определения shop_id.
+-- Берёт cur_sales, worker_plan для определения положена ли ему премия.
+
+
+-- ОПТИМИЗАЦИЯ
+-- Зачем цикл идёт по всем работникам магазина, что уже выполнял свой план ранее?
+-- Нужно оптимизировать и сделать так, чтобы расчёт в этом случае проводился только для того, кто сделал продажу.
+
+
+
+
+
