@@ -1,0 +1,109 @@
+DROP TRIGGER IF EXISTS `new_sales`;
+DELIMITER //
+CREATE TRIGGER new_sales
+AFTER INSERT
+ON sales
+FOR EACH ROW
+BEGIN
+    DECLARE cur_worker_id INT DEFAULT 0;
+    DECLARE worker_plan1 INT DEFAULT 0;
+    DECLARE worker_sales1 INT DEFAULT 0;
+    DECLARE cur_shop_id INT DEFAULT 0;
+    DECLARE active_shop_id INT DEFAULT 0;
+    DECLARE shop_plan1 INT DEFAULT 0;
+    DECLARE shop_sales1 INT DEFAULT 0;
+
+    DECLARE cursor_stop INT DEFAULT 0;
+    DECLARE cur CURSOR FOR SELECT id, cur_sales, worker_plan FROM workers_sales;
+    DECLARE CONTINUE HANDLER FOR NOT FOUND SET cursor_stop = 1;
+
+    SET cur_worker_id = NEW.worker_id;
+    SET cur_shop_id = (SELECT shop_id FROM workers WHERE id = cur_worker_id);
+
+    IF (SELECT COUNT(*) FROM workers_sales WHERE YEAR(dt) = YEAR(NEW.dt) AND MONTH(dt) = MONTH(NEW.dt) AND worker_id = cur_worker_id) = 0 THEN
+        INSERT INTO workers_sales (worker_id, dt, worker_plan, cur_sales, score, fixed_salary, income) VALUES (cur_worker_id, NEW.dt, 100, 0, 0, 30000, 30000);
+        INSERT INTO shops_sales (shop_id, dt, shop_plan, cur_sales) VALUES (cur_shop_id, NEW.dt, 1000, 0);
+    END IF;
+
+    UPDATE workers_sales SET score = score + NEW.new_sales * 200, cur_sales = cur_sales + NEW.new_sales WHERE worker_id = cur_worker_id AND YEAR(dt) = YEAR(NEW.dt) AND MONTH(dt) = MONTH(NEW.dt);
+    SET worker_sales1 = (SELECT cur_sales FROM workers_sales WHERE worker_id = cur_worker_id AND YEAR(dt) = YEAR(NEW.dt) AND MONTH(dt) = MONTH(NEW.dt));
+    SET worker_plan1 = (SELECT worker_plan FROM workers_sales WHERE worker_id = cur_worker_id AND YEAR(dt) = YEAR(NEW.dt) AND MONTH(dt) = MONTH(NEW.dt));
+    SET @g_worker_plan = worker_plan1;
+
+    UPDATE shops_sales SET cur_sales = cur_sales + NEW.new_sales WHERE shop_id = cur_shop_id AND YEAR(dt) = YEAR(NEW.dt) AND MONTH(dt) = MONTH(NEW.dt);
+    SET shop_sales1 = (SELECT cur_sales FROM shops_sales WHERE shop_id = cur_shop_id AND YEAR(dt) = YEAR(NEW.dt) AND MONTH(dt) = MONTH(NEW.dt));
+    SET shop_plan1 = (SELECT shop_plan FROM shops_sales WHERE shop_id = cur_shop_id AND YEAR(dt) = YEAR(NEW.dt) AND MONTH(dt) = MONTH(NEW.dt));
+
+    SET active_shop_id = cur_shop_id;
+    SET @g_shop_sales = shop_sales1;
+    SET @g_shop_plan = shop_plan1;
+
+
+    IF shop_sales1 >= shop_plan1 THEN
+        SET @testik = 2;
+        OPEN cur;
+        WHILE cursor_stop != 1 DO
+            FETCH cur INTO cur_worker_id, worker_sales1, worker_plan1;
+            SET cur_shop_id = (SELECT shop_id FROM workers WHERE id = cur_worker_id);
+            
+            IF cur_shop_id = active_shop_id AND worker_sales1 >= worker_plan1 THEN
+                UPDATE workers_sales SET income = fixed_salary + (score * 1.2) WHERE worker_id = cur_worker_id AND YEAR(dt) = YEAR(NEW.dt) AND MONTH(dt) = MONTH(NEW.dt);
+            END IF;
+        END WHILE;
+        CLOSE cur;
+    END IF;
+
+    SET @g_worker_sales = worker_sales1;
+    IF worker_sales1 >= worker_plan1 THEN
+        UPDATE workers_sales SET income = fixed_salary + (score * 1.1) WHERE worker_id = cur_worker_id AND YEAR(dt) = YEAR(NEW.dt) AND MONTH(dt) = MONTH(NEW.dt);
+        SET @testik = 1;
+    ELSE
+        SET @testik = 0;
+        UPDATE workers_sales SET income = fixed_salary + (score * 1) WHERE worker_id = cur_worker_id AND YEAR(dt) = YEAR(NEW.dt) AND MONTH(dt) = MONTH(NEW.dt);
+    END IF;
+
+END //
+
+DELIMITER ;
+
+-- Пример команды для теста:
+INSERT INTO `sales` (`id`, `worker_id`, `dt`, `new_sales`) VALUES ('1', '1', '2022-05-30 16:00:00', '1');
+SELECT @g_worker_plan, @g_worker_sales;
+-- Приме 2 команды для теста:
+INSERT INTO `sales` (`worker_id`, `dt`, `new_sales`) VALUES ('1', '2022-06-07 16:00:00', '7');
+SELECT @g_worker_plan, @g_worker_sales, @g_shop_sales, @g_shop_plan, @testik;
+
+
+
+-- Проблемы при тесте
+-- 1) При INSERT продажи, что происходит в новом месяце необходимо, чтобы
+-- Получается, что при вставке продажи, нужно пройтись по всем строкам таблицы workers_sales и определить является ли это новым рассчётным периодом.
+-- Это можно сделать без курса, а с помощью SELECT COUNT. 
+SELECT COUNT(*) FROM workers_sales WHERE YEAR(dt) = YEAR('2022-05-30 16:00:00') AND MONTH(dt) = MONTH('2022-05-30 16:00:00') AND worker_id = 1;
+-- Также с помощью INSERTов с default значениями. Таким образом моя дальнейшая логика позволит произвести необх. вычисления
+-- INSERT можно делать и без default значений, если при проектировании БД указать default значения.
+
+
+-- workers_sales изменялся.
+Для этого нужно сделать вставку новой продажи для этого worker
+INSERT INTO `workers_sales` (`id`, `worker_id`, `dt`, `worker_plan`, `cur_sales`, `score`, `fixed_salary`, `income`) VALUES ('4', '1', '2022-06-07 11:48:33.000000', '100', '0', '0', '30000', '30000');
+
+-- shops_sales изменялся
+Для этого нужно сделать вставку новой продажи для этого shop
+INSERT INTO `shops_sales` (`id`, `shop_id`, `dt`, `shop_plan`, `cur_sales`) VALUES ('3', '1', '2022-06-07 11:49:28.000000', '1000', '0');
+
+
+
+
+
+
+-- ОПТИМИЗАЦИЯ?
+-- Зачем цикл идёт по всем работникам магазина, что уже выполнял свой план ранее?
+-- Нужно оптимизировать и сделать так, чтобы расчёт в этом случае проводился только для того, кто сделал продажу.
+
+-- Усовершенствование?
+-- Сделать рассчёт shop_plan исходя из суммы планов его сотрудников в нём?
+-- (План сотрудника указывается при его добавлении)
+
+
+

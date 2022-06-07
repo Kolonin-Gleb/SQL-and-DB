@@ -17,6 +17,8 @@ BEGIN
     DECLARE cur CURSOR FOR SELECT id, cur_sales, worker_plan FROM workers_sales;
     DECLARE CONTINUE HANDLER FOR NOT FOUND SET cursor_stop = 1;
 
+
+
     SET cur_worker_id = NEW.worker_id;
     UPDATE workers_sales SET score = score + NEW.new_sales * 200 WHERE workers_sales.id = cur_worker_id AND YEAR(dt) = YEAR(NEW.dt) AND MONTH(dt) = MONTH(NEW.dt);
     UPDATE workers_sales SET cur_sales = cur_sales + NEW.new_sales WHERE workers_sales.id = cur_worker_id AND YEAR(dt) = YEAR(NEW.dt) AND MONTH(dt) = MONTH(NEW.dt);
@@ -83,9 +85,7 @@ SELECT @g_worker_plan, @g_worker_sales, @g_shop_sales, @g_shop_plan;
 
 
 -- Проблемы при тесте
--- 1) При последнем INSERT cur_sales, score, income не изменились!
--- При этом в таблице shops_sales продажи прошли!
--- Проблемы не могут быть связаны с NEW.dt, т.к. я специально задаю его таким же как в БД.
+-- 1) При INSERT продажи, что происходит в новом месяце необходимо, чтобы продажи проходили.
 
 -- ОПТИМИЗАЦИЯ
 -- Зачем цикл идёт по всем работникам магазина, что уже выполнял свой план ранее?
